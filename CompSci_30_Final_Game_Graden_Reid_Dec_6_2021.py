@@ -26,6 +26,11 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
+r = 0
+b = 0
+g = 0
+
+bg = r, g, b
 
 # Player properties
 PLAYER_ACC = 0.65
@@ -126,12 +131,15 @@ cliff = Ground()
 ground.ground()
 cliff.wall()
 
+timer = 0
+
 sprites.add(player)
 platform_sprites.add(ground, cliff)
 all_sprites.add(player, ground, cliff)
 running = True
 game_over = True
 while running:
+    screen.fill(bg)
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -151,13 +159,26 @@ while running:
                     if player.pos.y < cliff.rect.centery:
                         player.pos.y = cliff.rect.top
                         player.vel.y = 0
-                        
+    if pygame.time.get_ticks()-timer > 200:
+        timer = pygame.time.get_ticks()
+        r = r + 3
+        g = g + 6
+        b = b + 9
+        
+        if r >= 255:
+            r = 0
+        if g >= 255:
+            g = 0
+        if b >= 255:
+            b = 0
+                
+        bg = r,g,b
+#        print(bg)
+        pygame.display.update()
+        clock.tick(FPS)
     sprites.update()
-    screen.fill(RED)
+#    screen.fill(RED)
     all_sprites.draw(screen)
     pygame.display.flip()
     
 pygame.quit()
-#So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
-#acceleration and deacceleration. it also has a jump feature like a parabola
-#that goes up and down at varying speeds. next I have to work on making it work on platforms other than the ground, like a cliff.
