@@ -36,9 +36,9 @@ PLAYER_JUMP = 10
 SCREEN_SIZE = pygame.Rect((0, 0, 800, 640))
 
 #Screen colors
-r = 0
-b = 0
-g = 0
+r = 175
+b = 195
+g = 225
 
 bg = r, g, b
 
@@ -260,17 +260,17 @@ def main(Levers_color, bg, time, r, g, b):
                 return
         screen.fill(bg)
         clock.tick(FPS)
-        if pygame.time.get_ticks() - time > 200:
+        if pygame.time.get_ticks() - time > 2000:
             time = pygame.time.get_ticks()
-            r = r + 3
-            g = g + 6
-            b = b + 9
+            r = r - 3
+            g = g - 2
+            b = b - 1.5
         
-            if r >= 255:
+            if r >= 0:
                 r = 0
-            if g >= 255:
+            if g >= 0:
                 g = 0
-            if b >= 255:
+            if b >= 0:
                 b = 0
                 
             bg = r,g,b
