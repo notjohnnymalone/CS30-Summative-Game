@@ -14,6 +14,7 @@ img_dir = path.join(path.dirname(__file__), 'Final_img')#Reid we have to make th
 snd_dir = path.join(path.dirname(__file__), 'Final_snd')
 
 #Set Screen info
+TILE_SIZE = 32
 WIDTH = 800#we can change this later.
 HEIGHT = 600
 FPS = 60
@@ -25,18 +26,14 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-
-r = 0
-b = 0
-g = 0
-
-bg = r, g, b
+color = WHITE
 
 # Player properties
 PLAYER_ACC = 0.65
 PLAYER_FRICTION = -0.12
 PLAYER_GRAV = 0.8
-PLAYER_JUMP = 20
+PLAYER_JUMP = 10
+SCREEN_SIZE = pygame.Rect((0, 0, 800, 640))
 
 #Get Pygame all set to use.
 pygame.init()
@@ -48,137 +45,265 @@ sprites = pygame.sprite.Group()
 platform_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 vec = pygame.math.Vector2
+camera = vec(0, 0)
 
-def jump_cut(self):
-        if self.jumping:
-            if self.vel.y < -3:
-                self.vel.y = -3
+#Lists and other stuff
+Levers_color = []
+Levers = pygame.sprite.Group()
+Levers_2 = pygame.sprite.Group()
 
-def jump(self):
-    # jump only if standing on a platform
-    self.rect.y += 2
-    #hits = pygame.sprite.collide_rect(player, ground)
-    hits = pygame.sprite.groupcollide(sprites, platform_sprites, False, False)
-    self.rect.y -= 2
-    if hits:
-        self.vel.y = -PLAYER_JUMP
+class CameraAwareLayeredUpdates(pygame.sprite.LayeredUpdates):
+    def __init__(self, target, world_size):
+        super().__init__()
+        self.target = target
+        self.cam = pygame.Vector2(0, 0)
+        self.world_size = world_size
+        if self.target:
+            self.add(target)
 
-class Ground(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((WIDTH, 50))
+    def update(self, *args):
+        super().update(*args)
+        if self.target:
+            x = -self.target.rect.center[0] + SCREEN_SIZE.width/2
+            y = -self.target.rect.center[1] + SCREEN_SIZE.height/2
+            self.cam += (pygame.Vector2((x, y)) - self.cam) * 0.05
+            self.cam.x = max(-(self.world_size.width-SCREEN_SIZE.width), min(0, self.cam.x))
+            self.cam.y = max(-(self.world_size.height-SCREEN_SIZE.height), min(0, self.cam.y))
     
-    def ground(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((WIDTH, 50))
-        self.image.fill(BLACK)
+    def draw(self, surface):
+        spritedict = self.spritedict
+        surface_blit = surface.blit
+        dirty = self.lostsprites
+        self.lostsprites = []
+        dirty_append = dirty.append
+        init_rect = self._init_rect
+        for spr in self.sprites():
+            rec = spritedict[spr]
+            newrect = surface_blit(spr.image, spr.rect.move(self.cam))
+            if rec is init_rect:
+                dirty_append(newrect)
+            else:
+                if newrect.colliderect(rec):
+                    dirty_append(newrect.union(rec))
+                else:
+                    dirty_append(newrect)
+                    dirty_append(rec)
+            spritedict[spr] = newrect
+        return dirty
+    
+class Player_block(pygame.sprite.Sprite):
+    def __init__(self, color, pos, *groups):
+        super().__init__(*groups)
+        self.image = pygame.Surface((16, 50))
+        self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
-        self.rect.centerx = WIDTH / 2
-        self.rect.centery = HEIGHT - 25
-        
-    def wall(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((WIDTH, 50))
-        self.image.fill(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.centerx = WIDTH - 250
-        self.rect.centery = HEIGHT / 2 + 100
-        
-#player Class
-class Player(pygame.sprite.Sprite):#stes attributes for the 2nd player
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((16, 60))
-        self.image.fill(WHITE)
-        self.rect = self.image.get_rect()
-        #self.rect.centerx = WIDTH / 2
-        #self.rect.bottom = HEIGHT - 50
-        self.rect.center = (40, HEIGHT - 100)
-        self.pos = vec(25, HEIGHT - 50)
-        self.vel = vec(0, 0)
-        self.acc = vec(0, 0)
+        self.rect.x = 45
+        self.rect.y = 50
 
-    def update(self):
-        #self.animate()
-        self.acc = vec(0, PLAYER_GRAV)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.acc.x = -PLAYER_ACC
-        if keys[pygame.K_RIGHT]:
-            self.acc.x = PLAYER_ACC
-        if keys[pygame.K_UP]:
-            jump(self)
-
-        # apply friction
-        self.acc.x += self.vel.x * PLAYER_FRICTION
-        # equations of motion
-        self.vel += self.acc
-        if abs(self.vel.x) < 0.1:
+class Player(Player_block):
+    def __init__(self, platforms, pos, *groups):
+        super().__init__(WHITE, pos)
+        self.vel = pygame.Vector2((0, 0))
+        self.on_ground = False
+        self.platforms = platforms
+        self.levers = Levers
+        self.levers_2 = Levers_2
+        self.speed = 8
+        self.jump_strength = 10
+        self.last_update = pygame.time.get_ticks()
+        
+    def update(self, levers_color):
+        pressed = pygame.key.get_pressed()
+        up = pressed[pygame.K_UP]
+        left = pressed[pygame.K_LEFT]
+        right = pressed[pygame.K_RIGHT]
+        running = pressed[pygame.K_SPACE]
+        
+        if up:
+            # only jump if on the ground
+            if self.on_ground: self.vel.y = -self.jump_strength
+        if left:
+            self.vel.x = -self.speed
+        if right:
+            self.vel.x = self.speed
+        if running:
+            self.vel.x *= 1.5
+        if not self.on_ground:
+            # only accelerate with gravity if in the air
+            self.vel.y += .3
+            # max falling speed
+            if self.vel.y > 100: self.vel.y = 100
+        if not(left or right):
             self.vel.x = 0
-        self.pos += self.vel + 0.5 * self.acc
-        # wrap around the sides of the screen
-        if self.pos.x > WIDTH + self.rect.width / 2:
-            self.pos.x = 0 - self.rect.width / 2
-        if self.pos.x < 0 - self.rect.width / 2:
-            self.pos.x = WIDTH + self.rect.width / 2
-        if self.pos.y >= HEIGHT - 50:
-            self.pos.y = HEIGHT - 50
-        self.rect.midbottom = self.pos
+        # increment in x direction
+        self.rect.left += self.vel.x
+        # do x-axis collisions
+        self.collide(self.vel.x, 0, self.platforms, self.levers, self.levers_2)
+        # increment in y direction
+        self.rect.top += self.vel.y
+        # assuming that were in the air
+        self.on_ground = False
+        # do y-axis collisions
+        self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2)
+        #weird stuff
         
-player = Player()
-ground = Ground()
-cliff = Ground()
-ground.ground()
-cliff.wall()
+    def collide(self, xvel, yvel, platforms, levers, levers_2):
+        for p in platforms:
+            if pygame.sprite.collide_rect(self, p):
+                if isinstance(p, ExitBlock):
+                    pygame.event.post(pygame.event.Event(QUIT))
+                if xvel > 0:
+                    self.rect.right = p.rect.left
+                if xvel < 0:
+                    self.rect.left = p.rect.right
+                if yvel > 0:
+                    self.rect.bottom = p.rect.top
+                    self.on_ground = True
+                    self.vel.y = 0
+                if yvel < 0:
+                    self.rect.top = p.rect.bottom
+        for L in Levers:
+            if pygame.sprite.collide_rect(self, L):
+                Levers_color.append("BLUE")
+                if "BLUE" in Levers_color:
+                    if 'GREEN' in Levers_color:
+                        Levers_color.remove('BLUE')
+                        Levers_color.remove('GREEN'):
+                        
+                    
+        for R in Levers_2:
+            if pygame.sprite.collide_rect(self, R):
+                Levers_color.append("GREEN")
+                if "BLUE" in Levers_color:
+                    if 'GREEN' in Levers_color:
+                        print("welcome to the final battle")
+                        Levers_color.remove('BLUE')
+                        Levers_color.remove('GREEN')
 
-timer = 0
+def main(Levers_color):
+    pygame.init()
+    screen = pygame.display.set_mode(SCREEN_SIZE.size)
+    pygame.display.set_caption("Use arrows to move!")
+    timer = pygame.time.Clock()
 
-sprites.add(player)
-platform_sprites.add(ground, cliff)
-all_sprites.add(player, ground, cliff)
+    level = [
+        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                                                P                                               P",
+        "P                    P         P                 P                                               P",
+        "P                    PPPPPPPPPPP                 P                                               P",
+        "P                                                P                                               P",
+        "P      K                                         P                                               P",
+        "P    PPPPPPPP                                    P                                               P",
+        "P                            L                   P                                               P",
+        "P                          PPPPPPP               P                                               P",
+        "P                 PPPPPP                         P                                               P",
+        "P                                     P      P   P                                               P",
+        "P         PPPPPPP                     PPPPPPPP   P                                               P",
+        "P                                                P                                               P",
+        "P                     PPPPPP                     P                                               P",
+        "P                                                P                                               P",
+        "P      PPPPPPPP                                  P                                               P",
+        "P                                                P                                               P",
+        "P                 PPPPPP                         P                                               P",
+        "P                                                P                                               P",
+        "P                               PPPPPP                                                           P",
+        "P                                                                                                P",
+        "P                                                                                                P",
+        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",]
+
+    
+    platforms = pygame.sprite.Group()
+    player = Player(platforms, (TILE_SIZE, TILE_SIZE))
+    level_width  = len(level[0])*TILE_SIZE
+    level_height = len(level)*TILE_SIZE
+    entities = CameraAwareLayeredUpdates(player, pygame.Rect(0, 0, level_width, level_height))
+#     hit = pygame.sprite.spritecollide(player, platform_sprites, False)
+#     if hit:
+#         player.on_ground = True
+    # build the level
+    x = y = 0
+    for row in level:
+        for col in row:
+            if col == "P":
+                Platform((x, y), platforms, entities)
+            if col == "L":
+                Lever((x, y), Levers, entities)
+            if col == "W":
+                print(x, y)
+                Wall((x, y), platforms, entities)
+            if col == "K":
+                Lever_2((x, y), Levers_2, entities)
+            if col == "E":
+                ExitBlock((x, y), platforms, entities)
+            x += TILE_SIZE
+        y += TILE_SIZE
+        x = 0
+    
+    while 1:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT: 
+                return
+
+        entities.update(Levers_color)
+        screen.fill((0, 0, 0))
+        entities.draw(screen)
+        pygame.display.update()
+        timer.tick(60)
+        
+class Platform(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__((RED), pos, *groups)
+        self.image = pygame.Surface((35, 32))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect(topleft=pos)
+        
+class Lever(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__((BLUE), pos, *groups)
+        self.image = pygame.Surface((35, 32))
+        print(Levers_color)
+        self.image.fill(BLUE)
+        #self.Levers = Levers
+        self.rect = self.image.get_rect(topleft=pos)
+
+class Lever_2(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__((GREEN), pos, *groups)
+        self.image = pygame.Surface((35, 32))
+        print(Levers_color)
+        self.image.fill(GREEN)
+        #self.Levers = Levers
+        self.rect = self.image.get_rect(topleft=pos)
+        
+class Wall(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__((RED), pos, *groups)
+        self.image = pygame.Surface((35, 32))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect(topleft=pos)
+
+class ExitBlock(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__(Color("#0033FF"), pos, *groups)
+
+# player =  Player(sprites, (TILE_SIZE, TILE_SIZE))
+#all_sprites.add(player)
 running = True
 game_over = True
 while running:
-    screen.fill(bg)
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    #screen.blit(background, background_rect)
-    if player.vel.y > 0:
-            hits = pygame.sprite.groupcollide(sprites, platform_sprites, False, False)
-            if hits:
-#                 lowest = hits[0]
-                for hit in hits:
-                    if hit.rect.bottom > cliff.rect.bottom:
-                        lowest = hit
-                if player.pos.y == cliff.rect.bottom:
-                    print('cheese')
-                if player.pos.x < cliff.rect.right + 10 and \
-                   player.pos.x > cliff.rect.left - 10:
-                    if player.pos.y < cliff.rect.centery:
-                        player.pos.y = cliff.rect.top
-                        player.vel.y = 0
-    if pygame.time.get_ticks()-timer > 200:
-        timer = pygame.time.get_ticks()
-        r = r + 3
-        g = g + 6
-        b = b + 9
-        
-        if r >= 255:
-            r = 0
-        if g >= 255:
-            g = 0
-        if b >= 255:
-            b = 0
-                
-        bg = r,g,b
-#        print(bg)
-        pygame.display.update()
-        clock.tick(FPS)
-    sprites.update()
-#    screen.fill(RED)
-    all_sprites.draw(screen)
-    pygame.display.flip()
+    main(Levers_color)
     
-pygame.quit()
+#So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
+#acceleration and deacceleration. it also has a jump feature like a parabola
+#that goes up and down at varying speeds. next I have to work on making it work on platforms other than the ground, like a cliff.
