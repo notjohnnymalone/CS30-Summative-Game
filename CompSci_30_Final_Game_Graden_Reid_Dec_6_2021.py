@@ -26,9 +26,9 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-r = 0
-b = 0
-g = 0
+r = 175
+g = 195
+b = 225
 
 bg = r, g, b
 
@@ -159,19 +159,29 @@ while running:
                     if player.pos.y < cliff.rect.centery:
                         player.pos.y = cliff.rect.top
                         player.vel.y = 0
-    if pygame.time.get_ticks()-timer > 200:
+    if pygame.time.get_ticks()-timer > 1000:
         timer = pygame.time.get_ticks()
-        r = r + 3
-        g = g + 6
-        b = b + 9
+#        r = r + 3
+#        g = g + 6
+#        b = b + 9
+#        
+#        if r >= 255:
+#            r = 0
+#        if g >= 255:
+#            g = 0
+#        if b >= 255:
+#            b = 0
+        r = r - 3
+        g = g - 2
+        b = b - 1.5
         
-        if r >= 255:
+        if r <= 0:
             r = 0
-        if g >= 255:
+        if g <= 0:
             g = 0
-        if b >= 255:
+        if b <= 0:
             b = 0
-                
+            # if b hits 0 game over#######################################################
         bg = r,g,b
 #        print(bg)
         pygame.display.update()
