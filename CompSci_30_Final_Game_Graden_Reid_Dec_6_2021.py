@@ -35,6 +35,13 @@ PLAYER_GRAV = 0.8
 PLAYER_JUMP = 10
 SCREEN_SIZE = pygame.Rect((0, 0, 800, 640))
 
+#Screen colors
+r = 175
+b = 195
+g = 225
+
+bg = r, g, b
+
 #Get Pygame all set to use.
 pygame.init()
 pygame.mixer.init()
@@ -46,6 +53,7 @@ platform_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 vec = pygame.math.Vector2
 camera = vec(0, 0)
+time = 0
 
 #Lists and other stuff
 Levers_color = []
@@ -167,9 +175,9 @@ class Player(Player_block):
                 Levers_color.append("BLUE")
                 if "BLUE" in Levers_color:
                     if 'GREEN' in Levers_color:
+                        print("welcome to the final battle")
                         Levers_color.remove('BLUE')
-                        Levers_color.remove('GREEN'):
-                        
+                        Levers_color.remove('GREEN')
                     
         for R in Levers_2:
             if pygame.sprite.collide_rect(self, R):
@@ -180,7 +188,7 @@ class Player(Player_block):
                         Levers_color.remove('BLUE')
                         Levers_color.remove('GREEN')
 
-def main(Levers_color):
+def main(Levers_color, bg, time, r, g, b):
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE.size)
     pygame.display.set_caption("Use arrows to move!")
@@ -250,9 +258,26 @@ def main(Levers_color):
         for e in pygame.event.get():
             if e.type == pygame.QUIT: 
                 return
-
+        screen.fill(bg)
+        clock.tick(FPS)
+        if pygame.time.get_ticks() - time > 2000:
+            time = pygame.time.get_ticks()
+            r = r - 3
+            g = g - 2
+            b = b - 1.5
+        
+            if r >= 0:
+                r = 0
+            if g >= 0:
+                g = 0
+            if b >= 0:
+                b = 0
+                
+            bg = r,g,b
+#        print(bg)
+            pygame.display.update()
+            clock.tick(FPS)
         entities.update(Levers_color)
-        screen.fill((0, 0, 0))
         entities.draw(screen)
         pygame.display.update()
         timer.tick(60)
@@ -302,7 +327,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    main(Levers_color)
+    main(Levers_color, bg, time, r, b, g)
     
 #So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
 #acceleration and deacceleration. it also has a jump feature like a parabola
