@@ -8,6 +8,7 @@
 import pygame
 import random
 from os import path
+from CompSci_30_Final_Modules import Mobs_Code_dec_31_2021
 
 #Load image/sound files up
 img_dir = path.join(path.dirname(__file__), 'Final_img')#Reid we have to make the same file on our respective computers.
@@ -15,9 +16,9 @@ snd_dir = path.join(path.dirname(__file__), 'Final_snd')
 
 #Set Screen info
 TILE_SIZE = 32
-WIDTH = 800#we can change this later.
-HEIGHT = 600
-FPS = 60
+WIDTH = 1024#we can change this later.
+HEIGHT = 720
+FPS = 120
 
 # define colors
 WHITE = (255, 255, 255)
@@ -33,7 +34,7 @@ PLAYER_ACC = 0.65
 PLAYER_FRICTION = -0.12
 PLAYER_GRAV = 0.8
 PLAYER_JUMP = 10
-SCREEN_SIZE = pygame.Rect((0, 0, 800, 640))
+SCREEN_SIZE = pygame.Rect((0, 0, WIDTH, HEIGHT))
 
 #Screen colors
 r = 175
@@ -48,7 +49,7 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Regular Computer Classmates 2: Return Of Browser")
 clock = pygame.time.Clock()
-sprites = pygame.sprite.Group()
+Mobs = pygame.sprite.Group()
 platform_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 vec = pygame.math.Vector2
@@ -56,6 +57,11 @@ camera = vec(0, 0)
 time = 0
 
 #Lists and other stuff
+Mob_x = {'mob_speedx' : -2}
+Mob_2_x = {'mob_speedx' : -2}
+Mob_3_x = {'mob_speedx' : -2}
+Mob_4_x = {'mob_speedx' : -2}
+Mob_number = [1]
 Levers_color = []
 Levers = pygame.sprite.Group()
 Levers_2 = pygame.sprite.Group()
@@ -102,25 +108,26 @@ class CameraAwareLayeredUpdates(pygame.sprite.LayeredUpdates):
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
         super().__init__(*groups)
-        self.image = pygame.Surface((16, 50))
+        self.image = pygame.Surface((16, 35))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
         self.rect.x = 45
         self.rect.y = 50
 
 class Player(Player_block):
-    def __init__(self, platforms, pos, *groups):
+    def __init__(self, platforms, mobs, pos, *groups):
         super().__init__(WHITE, pos)
         self.vel = pygame.Vector2((0, 0))
         self.on_ground = False
         self.platforms = platforms
+        self.mobs = mobs
         self.levers = Levers
         self.levers_2 = Levers_2
         self.speed = 8
-        self.jump_strength = 10
+        self.jump_strength = 8
         self.last_update = pygame.time.get_ticks()
         
-    def update(self, levers_color):
+    def update(self, levers_color, yvel, platforms, mobs):
         pressed = pygame.key.get_pressed()
         up = pressed[pygame.K_UP]
         left = pressed[pygame.K_LEFT]
@@ -146,16 +153,16 @@ class Player(Player_block):
         # increment in x direction
         self.rect.left += self.vel.x
         # do x-axis collisions
-        self.collide(self.vel.x, 0, self.platforms, self.levers, self.levers_2)
+        self.collide(self.vel.x, 0, self.platforms, self.levers, self.levers_2, mobs)
         # increment in y direction
         self.rect.top += self.vel.y
         # assuming that were in the air
         self.on_ground = False
         # do y-axis collisions
-        self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2)
+        self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2, mobs)
         #weird stuff
         
-    def collide(self, xvel, yvel, platforms, levers, levers_2):
+    def collide(self, xvel, yvel, platforms, levers, levers_2, mobs):
         for p in platforms:
             if pygame.sprite.collide_rect(self, p):
                 if isinstance(p, ExitBlock):
@@ -170,6 +177,10 @@ class Player(Player_block):
                     self.vel.y = 0
                 if yvel < 0:
                     self.rect.top = p.rect.bottom
+        if pygame.sprite.spritecollide(self, mobs, False):
+            self.rect.x = 45
+            self.rect.y = 50
+            
         for L in Levers:
             if pygame.sprite.collide_rect(self, L):
                 Levers_color.append("BLUE")
@@ -187,7 +198,7 @@ class Player(Player_block):
                         print("welcome to the final battle")
                         Levers_color.remove('BLUE')
                         Levers_color.remove('GREEN')
-
+          
 def main(Levers_color, bg, time, r, g, b):
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE.size)
@@ -195,47 +206,43 @@ def main(Levers_color, bg, time, r, g, b):
     timer = pygame.time.Clock()
 
     level = [
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                                                P                                               P",
-        "P                    P         P                 P                                               P",
-        "P                    PPPPPPPPPPP                 P                                               P",
-        "P                                                P                                               P",
-        "P      K                                         P                                               P",
-        "P    PPPPPPPP                                    P                                               P",
-        "P                            L                   P                                               P",
-        "P                          PPPPPPP               P                                               P",
-        "P                 PPPPPP                         P                                               P",
-        "P                                     P      P   P                                               P",
-        "P         PPPPPPP                     PPPPPPPP   P                                               P",
-        "P                                                P                                               P",
-        "P                     PPPPPP                     P                                               P",
-        "P                                                P                                               P",
-        "P      PPPPPPPP                                  P                                               P",
-        "P                                                P                                               P",
-        "P                 PPPPPP                         P                                               P",
-        "P                                                P                                               P",
-        "P                               PPPPPP                                                           P",
-        "P                                                                                                P",
-        "P                                                                                                P",
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",]
+        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+        "P                              P",
+        "P                              P",
+        "P                              P",
+        "P                              P",
+        "P P       P                    P",
+        "P PPPPPPPPP                    P",
+        "P            PPP               P",
+        "P                              P",
+        "P    PPPPPP          P         P",
+        "P    P               PPPPPPPPPPP",
+        "P    P                         P",
+        "P    P K    P                  P",
+        "P    PPPPPPPP    PP            P",
+        "P                            L P",
+        "P                          PPPPP",
+        "P                 PPPPPP       P",
+        "P                              P",
+        "P         PPPPPPP              P",
+        "P                              P",
+        "P                     PPPPPP   P",
+        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",]
 
-    
     platforms = pygame.sprite.Group()
-    player = Player(platforms, (TILE_SIZE, TILE_SIZE))
+    mobs = pygame.sprite.Group()
+    player = Player(platforms, mobs, (TILE_SIZE, TILE_SIZE))
     level_width  = len(level[0])*TILE_SIZE
     level_height = len(level)*TILE_SIZE
-    entities = CameraAwareLayeredUpdates(player, pygame.Rect(0, 0, level_width, level_height))
-#     hit = pygame.sprite.spritecollide(player, platform_sprites, False)
-#     if hit:
-#         player.on_ground = True
-    # build the level
+    #entities = CameraAwareLayeredUpdates(player, pygame.Rect(0, 0, level_width, level_height))
+    entities = pygame.sprite.Group()
+    entities.add(player)
+    mob = Mobs_Code_dec_31_2021.Mobs(platforms, mobs, (TILE_SIZE, TILE_SIZE))
+    mob_2 = Mobs_Code_dec_31_2021.Mobs_2(platforms, mobs, (TILE_SIZE, TILE_SIZE))
+    mob_3 = Mobs_Code_dec_31_2021.Mobs_3(platforms, mobs, (TILE_SIZE, TILE_SIZE))
+    mob_4 = Mobs_Code_dec_31_2021.Mobs_4(platforms, mobs, (TILE_SIZE, TILE_SIZE))
+    mobs.add(mob, mob_2, mob_3)
+    mobs.add(mob_4)
     x = y = 0
     for row in level:
         for col in row:
@@ -247,6 +254,7 @@ def main(Levers_color, bg, time, r, g, b):
                 print(x, y)
                 Wall((x, y), platforms, entities)
             if col == "K":
+                print(x, y)
                 Lever_2((x, y), Levers_2, entities)
             if col == "E":
                 ExitBlock((x, y), platforms, entities)
@@ -258,6 +266,7 @@ def main(Levers_color, bg, time, r, g, b):
         for e in pygame.event.get():
             if e.type == pygame.QUIT: 
                 return
+        print(r, g, b)
         screen.fill(bg)
         clock.tick(FPS)
         if pygame.time.get_ticks() - time > 2000:
@@ -266,21 +275,25 @@ def main(Levers_color, bg, time, r, g, b):
             g = g - 2
             b = b - 1.5
         
-            if r >= 0:
+            if r <= 0:
                 r = 0
-            if g >= 0:
+            if g <= 0:
                 g = 0
-            if b >= 0:
+            if b <= 0:
                 b = 0
                 
             bg = r,g,b
-#        print(bg)
-            pygame.display.update()
+            #print(bg)
+            #pygame.display.update()
             clock.tick(FPS)
-        entities.update(Levers_color)
+        entities.add(mob, mob_2, mob_3, mob_4)
+        entities.update(Levers_color, mob.vel.y, mob.platforms, player.mobs)
+        mobs.draw(screen)
         entities.draw(screen)
+        pygame.display.flip()
         pygame.display.update()
         timer.tick(60)
+        
         
 class Platform(Player_block):
     def __init__(self, pos, *groups):
@@ -326,8 +339,9 @@ while running:
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-    main(Levers_color, bg, time, r, b, g)
+            pygame.quit()
+        else:
+            main(Levers_color, bg, time, r, g, b)
     
 #So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
 #acceleration and deacceleration. it also has a jump feature like a parabola
