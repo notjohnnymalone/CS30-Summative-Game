@@ -9,6 +9,7 @@ import pygame
 import random
 from os import path
 from CompSci_30_Final_Modules import Mobs_Code_dec_31_2021
+from CompSci_30_Final_Modules import Levels_code_jan_1_2022
 
 #Load image/sound files up
 img_dir = path.join(path.dirname(__file__), 'Final_img')#Reid we have to make the same file on our respective computers.
@@ -17,7 +18,7 @@ snd_dir = path.join(path.dirname(__file__), 'Final_snd')
 #Set Screen info
 TILE_SIZE = 32
 WIDTH = 1024#we can change this later.
-HEIGHT = 720
+HEIGHT = 700
 FPS = 120
 
 # define colors
@@ -65,45 +66,7 @@ Mob_number = [1]
 Levers_color = []
 Levers = pygame.sprite.Group()
 Levers_2 = pygame.sprite.Group()
-
-class CameraAwareLayeredUpdates(pygame.sprite.LayeredUpdates):
-    def __init__(self, target, world_size):
-        super().__init__()
-        self.target = target
-        self.cam = pygame.Vector2(0, 0)
-        self.world_size = world_size
-        if self.target:
-            self.add(target)
-
-    def update(self, *args):
-        super().update(*args)
-        if self.target:
-            x = -self.target.rect.center[0] + SCREEN_SIZE.width/2
-            y = -self.target.rect.center[1] + SCREEN_SIZE.height/2
-            self.cam += (pygame.Vector2((x, y)) - self.cam) * 0.05
-            self.cam.x = max(-(self.world_size.width-SCREEN_SIZE.width), min(0, self.cam.x))
-            self.cam.y = max(-(self.world_size.height-SCREEN_SIZE.height), min(0, self.cam.y))
-    
-    def draw(self, surface):
-        spritedict = self.spritedict
-        surface_blit = surface.blit
-        dirty = self.lostsprites
-        self.lostsprites = []
-        dirty_append = dirty.append
-        init_rect = self._init_rect
-        for spr in self.sprites():
-            rec = spritedict[spr]
-            newrect = surface_blit(spr.image, spr.rect.move(self.cam))
-            if rec is init_rect:
-                dirty_append(newrect)
-            else:
-                if newrect.colliderect(rec):
-                    dirty_append(newrect.union(rec))
-                else:
-                    dirty_append(newrect)
-                    dirty_append(rec)
-            spritedict[spr] = newrect
-        return dirty
+Level = [1]
     
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
@@ -152,6 +115,7 @@ class Player(Player_block):
             self.vel.x = 0
         # increment in x direction
         self.rect.left += self.vel.x
+        print(self.rect.x)
         # do x-axis collisions
         self.collide(self.vel.x, 0, self.platforms, self.levers, self.levers_2, mobs)
         # increment in y direction
@@ -161,7 +125,12 @@ class Player(Player_block):
         # do y-axis collisions
         self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2, mobs)
         #weird stuff
-        
+        if self.rect.y >= 615 and self.rect.x >= 940:
+            Level.append(3)
+            main(Levers_color, bg, time, r, g, b)
+        if self.rect.y >= 635 and self.rect.x <= 80:
+            print("you win")
+
     def collide(self, xvel, yvel, platforms, levers, levers_2, mobs):
         for p in platforms:
             if pygame.sprite.collide_rect(self, p):
@@ -186,54 +155,28 @@ class Player(Player_block):
                 Levers_color.append("BLUE")
                 if "BLUE" in Levers_color:
                     if 'GREEN' in Levers_color:
-                        print("welcome to the final battle")
+                        Level.append(2)
                         Levers_color.remove('BLUE')
                         Levers_color.remove('GREEN')
+                        main(Levers_color, bg, time, r, g, b)
                     
         for R in Levers_2:
             if pygame.sprite.collide_rect(self, R):
                 Levers_color.append("GREEN")
                 if "BLUE" in Levers_color:
                     if 'GREEN' in Levers_color:
-                        print("welcome to the final battle")
+                        Level.append(2)
                         Levers_color.remove('BLUE')
                         Levers_color.remove('GREEN')
+                        main(Levers_color, bg, time, r, g, b)
           
 def main(Levers_color, bg, time, r, g, b):
-    pygame.init()
-    screen = pygame.display.set_mode(SCREEN_SIZE.size)
-    pygame.display.set_caption("Use arrows to move!")
     timer = pygame.time.Clock()
-
-    level = [
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-        "P                              P",
-        "P                              P",
-        "P                              P",
-        "P                              P",
-        "P P       P                    P",
-        "P PPPPPPPPP                    P",
-        "P            PPP               P",
-        "P                              P",
-        "P    PPPPPP          P         P",
-        "P    P               PPPPPPPPPPP",
-        "P    P                         P",
-        "P    P K    P                  P",
-        "P    PPPPPPPP    PP            P",
-        "P                            L P",
-        "P                          PPPPP",
-        "P                 PPPPPP       P",
-        "P                              P",
-        "P         PPPPPPP              P",
-        "P                              P",
-        "P                     PPPPPP   P",
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",]
-
     platforms = pygame.sprite.Group()
     mobs = pygame.sprite.Group()
     player = Player(platforms, mobs, (TILE_SIZE, TILE_SIZE))
-    level_width  = len(level[0])*TILE_SIZE
-    level_height = len(level)*TILE_SIZE
+    level_width  = len(Levels_code_jan_1_2022.level[0])*TILE_SIZE
+    level_height = len(Levels_code_jan_1_2022.level)*TILE_SIZE
     #entities = CameraAwareLayeredUpdates(player, pygame.Rect(0, 0, level_width, level_height))
     entities = pygame.sprite.Group()
     entities.add(player)
@@ -244,6 +187,13 @@ def main(Levers_color, bg, time, r, g, b):
     mobs.add(mob, mob_2, mob_3)
     mobs.add(mob_4)
     x = y = 0
+    print(Level)
+    if 3 in Level:
+        level = Levels_code_jan_1_2022.level_3
+    elif 2 in Level:
+        level = Levels_code_jan_1_2022.level_2
+    else:
+        level = Levels_code_jan_1_2022.level_3
     for row in level:
         for col in row:
             if col == "P":
@@ -261,14 +211,17 @@ def main(Levers_color, bg, time, r, g, b):
             x += TILE_SIZE
         y += TILE_SIZE
         x = 0
-    
+        
     while 1:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT: 
-                return
-        print(r, g, b)
+#         for e in pygame.event.get():
+#             if e.type == pygame.QUIT: 
+#                 return
+#             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+#                 return
+        #print(r, g, b)
         screen.fill(bg)
         clock.tick(FPS)
+        #print(Level)
         if pygame.time.get_ticks() - time > 2000:
             time = pygame.time.get_ticks()
             r = r - 3
@@ -293,7 +246,11 @@ def main(Levers_color, bg, time, r, g, b):
         pygame.display.flip()
         pygame.display.update()
         timer.tick(60)
-        
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT: 
+                return
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                return
         
 class Platform(Player_block):
     def __init__(self, pos, *groups):
@@ -335,14 +292,14 @@ class ExitBlock(Player_block):
 #all_sprites.add(player)
 running = True
 game_over = True
-while running:
-    clock.tick(FPS)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        else:
-            main(Levers_color, bg, time, r, g, b)
-    
+# while running:
+clock.tick(FPS)
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             pygame.quit()
+#         else:
+main(Levers_color, bg, time, r, g, b)
+pygame.quit()
 #So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
 #acceleration and deacceleration. it also has a jump feature like a parabola
 #that goes up and down at varying speeds. next I have to work on making it work on platforms other than the ground, like a cliff.
