@@ -10,82 +10,26 @@ import random
 from os import path
 from CompSci_30_Final_Modules import Mobs_Code_dec_31_2021
 from CompSci_30_Final_Modules import Levels_code_jan_1_2022
-
-#Load image/sound files up
-img_dir = path.join(path.dirname(__file__), 'Final_img')#Reid we have to make the same file on our respective computers.
-snd_dir = path.join(path.dirname(__file__), 'Final_snd')
-
-#Set Screen info
-TILE_SIZE = 32
-WIDTH = 1024#we can change this later.
-HEIGHT = 700
-FPS = 120
-
-# define colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-color = WHITE
-
-# Player properties
-PLAYER_ACC = 0.65
-PLAYER_FRICTION = -0.12
-PLAYER_GRAV = 0.8
-PLAYER_JUMP = 10
-SCREEN_SIZE = pygame.Rect((0, 0, WIDTH, HEIGHT))
-
-#Screen colors
-r = 175
-b = 195
-g = 225
-
-bg = r, g, b
-
-#Get Pygame all set to use.
-pygame.init()
-pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Regular Computer Classmates 2: Return Of Browser")
-clock = pygame.time.Clock()
-Mobs = pygame.sprite.Group()
-platform_sprites = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
-vec = pygame.math.Vector2
-camera = vec(0, 0)
-time = 0
-
-#Lists and other stuff
-Mob_x = {'mob_speedx' : -2}
-Mob_2_x = {'mob_speedx' : -2}
-Mob_3_x = {'mob_speedx' : -2}
-Mob_4_x = {'mob_speedx' : -2}
-Mob_number = [1]
-Levers_color = []
-Levers = pygame.sprite.Group()
-Levers_2 = pygame.sprite.Group()
-Level = [1]
+import Settings_Code_dec_31_2021
     
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
         super().__init__(*groups)
         self.image = pygame.Surface((16, 35))
-        self.image.fill(YELLOW)
+        self.image.fill(Settings_Code_dec_31_2021.YELLOW)
         self.rect = self.image.get_rect()
         self.rect.x = 45
         self.rect.y = 50
 
 class Player(Player_block):
     def __init__(self, platforms, mobs, pos, *groups):
-        super().__init__(WHITE, pos)
+        super().__init__(Settings_Code_dec_31_2021.WHITE, pos)
         self.vel = pygame.Vector2((0, 0))
         self.on_ground = False
         self.platforms = platforms
         self.mobs = mobs
-        self.levers = Levers
-        self.levers_2 = Levers_2
+        self.levers = Settings_Code_dec_31_2021.Levers
+        self.levers_2 = Settings_Code_dec_31_2021.Levers_2
         self.speed = 8
         self.jump_strength = 8
         self.last_update = pygame.time.get_ticks()
@@ -126,10 +70,14 @@ class Player(Player_block):
         self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2, mobs)
         #weird stuff
         if self.rect.y >= 615 and self.rect.x >= 940:
-            Level.append(3)
-            main(Levers_color, bg, time, r, g, b)
+            Settings_Code_dec_31_2021.Level.append(3)
+            main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)# r, g, b)
         if self.rect.y >= 635 and self.rect.x <= 80:
             print("you win")
+            new_file = 'Game_save' + '.txt'
+            writing = open(new_file, 'w')
+            writing.write('1')
+            writing.close()
 
     def collide(self, xvel, yvel, platforms, levers, levers_2, mobs):
         for p in platforms:
@@ -150,66 +98,78 @@ class Player(Player_block):
             self.rect.x = 45
             self.rect.y = 50
             
-        for L in Levers:
+        for L in Settings_Code_dec_31_2021.Levers:
             if pygame.sprite.collide_rect(self, L):
-                Levers_color.append("BLUE")
-                if "BLUE" in Levers_color:
-                    if 'GREEN' in Levers_color:
-                        Level.append(2)
-                        Levers_color.remove('BLUE')
-                        Levers_color.remove('GREEN')
-                        main(Levers_color, bg, time, r, g, b)
+                Settings_Code_dec_31_2021.Levers_color.append("BLUE")
+                if "BLUE" in Settings_Code_dec_31_2021.Levers_color:
+                    if 'GREEN' in Settings_Code_dec_31_2021.Levers_color:
+                        Settings_Code_dec_31_2021.Level.append(2)
+                        Settings_Code_dec_31_2021.Levers_color.clear()
+                        Settings_Code_dec_31_2021.Levers_color.clear()
+                        main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)# r, g, b)
                     
-        for R in Levers_2:
+        for R in Settings_Code_dec_31_2021.Levers_2:
             if pygame.sprite.collide_rect(self, R):
-                Levers_color.append("GREEN")
-                if "BLUE" in Levers_color:
-                    if 'GREEN' in Levers_color:
-                        Level.append(2)
-                        Levers_color.remove('BLUE')
-                        Levers_color.remove('GREEN')
-                        main(Levers_color, bg, time, r, g, b)
+                Settings_Code_dec_31_2021.Levers_color.append("GREEN")
+                if "BLUE" in Settings_Code_dec_31_2021.Levers_color:
+                    if 'GREEN' in Settings_Code_dec_31_2021.Levers_color:
+                        Settings_Code_dec_31_2021.Level.append(2)
+                        Settings_Code_dec_31_2021.Levers_color.clear()
+                        Settings_Code_dec_31_2021.Levers_color.clear()
+                        main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)# r, g, b)
           
-def main(Levers_color, bg, time, r, g, b):
+def main(Levers_color, bg, time):# r, g, b):
+    new_file = 'Game_save' + '.txt'
     timer = pygame.time.Clock()
+    entities = pygame.sprite.Group()
     platforms = pygame.sprite.Group()
     mobs = pygame.sprite.Group()
-    player = Player(platforms, mobs, (TILE_SIZE, TILE_SIZE))
-    level_width  = len(Levels_code_jan_1_2022.level[0])*TILE_SIZE
-    level_height = len(Levels_code_jan_1_2022.level)*TILE_SIZE
-    #entities = CameraAwareLayeredUpdates(player, pygame.Rect(0, 0, level_width, level_height))
-    entities = pygame.sprite.Group()
+    platforms = pygame.sprite.Group()
+    player = Player(platforms, mobs, (Settings_Code_dec_31_2021.TILE_SIZE, Settings_Code_dec_31_2021.TILE_SIZE))
+    level_width  = len(Levels_code_jan_1_2022.level[0])*Settings_Code_dec_31_2021.TILE_SIZE
+    level_height = len(Levels_code_jan_1_2022.level)*Settings_Code_dec_31_2021.TILE_SIZE
     entities.add(player)
-    mob = Mobs_Code_dec_31_2021.Mobs(platforms, mobs, (TILE_SIZE, TILE_SIZE))
-    mob_2 = Mobs_Code_dec_31_2021.Mobs_2(platforms, mobs, (TILE_SIZE, TILE_SIZE))
-    mob_3 = Mobs_Code_dec_31_2021.Mobs_3(platforms, mobs, (TILE_SIZE, TILE_SIZE))
-    mob_4 = Mobs_Code_dec_31_2021.Mobs_4(platforms, mobs, (TILE_SIZE, TILE_SIZE))
+    mob = Mobs_Code_dec_31_2021.Mobs(platforms, mobs, (Settings_Code_dec_31_2021.TILE_SIZE, Settings_Code_dec_31_2021.TILE_SIZE))
+    mob_2 = Mobs_Code_dec_31_2021.Mobs_2(platforms, mobs, (Settings_Code_dec_31_2021.TILE_SIZE, Settings_Code_dec_31_2021.TILE_SIZE))
+    mob_3 = Mobs_Code_dec_31_2021.Mobs_3(platforms, mobs, (Settings_Code_dec_31_2021.TILE_SIZE, Settings_Code_dec_31_2021.TILE_SIZE))
+    mob_4 = Mobs_Code_dec_31_2021.Mobs_4(platforms, mobs, (Settings_Code_dec_31_2021.TILE_SIZE, Settings_Code_dec_31_2021.TILE_SIZE))
     mobs.add(mob, mob_2, mob_3)
     mobs.add(mob_4)
+    lever_1 = Lever(Settings_Code_dec_31_2021.Levers)
+    lever_2 = Lever_2(Settings_Code_dec_31_2021.Levers)
     x = y = 0
-    print(Level)
-    if 3 in Level:
+    if 3 in Settings_Code_dec_31_2021.Level:
         level = Levels_code_jan_1_2022.level_3
-    elif 2 in Level:
+        writing = open(new_file, 'w')
+        writing.write('3')
+        writing.close()
+    elif 2 in Settings_Code_dec_31_2021.Level:
         level = Levels_code_jan_1_2022.level_2
+        writing = open(new_file, 'w')
+        writing.write('2')
+        writing.close()
     else:
-        level = Levels_code_jan_1_2022.level_3
+        level = Levels_code_jan_1_2022.level
+        Settings_Code_dec_31_2021.Levers.add(lever_1)
+        Settings_Code_dec_31_2021.Levers_2.add(lever_2)
+        writing = open(new_file, 'w')
+        writing.write('1')
+        writing.close()
     for row in level:
         for col in row:
             if col == "P":
                 Platform((x, y), platforms, entities)
-            if col == "L":
-                Lever((x, y), Levers, entities)
+#             if col == "L":
+#                 Lever((x, y), Levers, entities)
             if col == "W":
-                print(x, y)
-                Wall((x, y), platforms, entities)
-            if col == "K":
-                print(x, y)
-                Lever_2((x, y), Levers_2, entities)
+                Platform_wall((x, y), platforms, entities)
+#             if col == "K":
+#                 print(x, y)
+#                 Lever_2((x, y), Levers_2, entities)
             if col == "E":
                 ExitBlock((x, y), platforms, entities)
-            x += TILE_SIZE
-        y += TILE_SIZE
+            x += Settings_Code_dec_31_2021.TILE_SIZE
+        y += Settings_Code_dec_31_2021.TILE_SIZE
         x = 0
         
     while 1:
@@ -219,14 +179,33 @@ def main(Levers_color, bg, time, r, g, b):
 #             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
 #                 return
         #print(r, g, b)
-        screen.fill(bg)
-        clock.tick(FPS)
+        Settings_Code_dec_31_2021.screen.fill(bg)
+        Settings_Code_dec_31_2021.clock.tick(Settings_Code_dec_31_2021.FPS)
         #print(Level)
         if pygame.time.get_ticks() - time > 2000:
             time = pygame.time.get_ticks()
-            r = r - 3
-            g = g - 2
-            b = b - 1.5
+            r = sum(Settings_Code_dec_31_2021.R)
+            Settings_Code_dec_31_2021.R.append(-3)
+#             new_file = 'Game_R_save' + '.txt'
+#             writing = open(new_file, 'w')
+#             writing.write(r)
+#             writing.close()
+#             print(Settings_Code_dec_31_2021.R)
+            #r = r - 3
+            Settings_Code_dec_31_2021.G.append(-2)
+            g = sum(Settings_Code_dec_31_2021.G)
+#             new_file = 'Game_G_save' + '.txt'
+#             writing = open(new_file, 'w')
+#             writing.write(g)
+#             writing.close()
+            #g = g - 2
+            Settings_Code_dec_31_2021.B.append(-1.5)
+            b = sum(Settings_Code_dec_31_2021.B)
+#             new_file = 'Game_Time_save' + '.txt'
+#             writing = open(new_file, 'w')
+#             writing.write(b)
+#             writing.close()
+            #b = b - 1.5
         
             if r <= 0:
                 r = 0
@@ -238,44 +217,60 @@ def main(Levers_color, bg, time, r, g, b):
             bg = r,g,b
             #print(bg)
             #pygame.display.update()
-            clock.tick(FPS)
+            Settings_Code_dec_31_2021.clock.tick(Settings_Code_dec_31_2021.FPS)
         entities.add(mob, mob_2, mob_3, mob_4)
         entities.update(Levers_color, mob.vel.y, mob.platforms, player.mobs)
-        mobs.draw(screen)
-        entities.draw(screen)
+        mobs.draw(Settings_Code_dec_31_2021.screen)
+        if 2 not in Settings_Code_dec_31_2021.Level:
+            Settings_Code_dec_31_2021.Levers.draw(Settings_Code_dec_31_2021.screen)
+            Settings_Code_dec_31_2021.Levers_2.draw(Settings_Code_dec_31_2021.screen)
+        entities.draw(Settings_Code_dec_31_2021.screen)
         pygame.display.flip()
         pygame.display.update()
         timer.tick(60)
+        print(Settings_Code_dec_31_2021.Levers_color)
         for e in pygame.event.get():
-            if e.type == pygame.QUIT: 
+            if e.type == pygame.QUIT:
+                pygame.quit()
                 return
             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                 return
         
 class Platform(Player_block):
     def __init__(self, pos, *groups):
-        super().__init__((RED), pos, *groups)
+        super().__init__((Settings_Code_dec_31_2021.RED), pos, *groups)
         self.image = pygame.Surface((35, 32))
-        self.image.fill(RED)
+        self.image = Settings_Code_dec_31_2021.platform_img
+        self.image.set_colorkey(Settings_Code_dec_31_2021.BLACK)
+        self.rect = self.image.get_rect(topleft=pos)
+    
+class Platform_wall(Player_block):
+    def __init__(self, pos, *groups):
+        super().__init__((Settings_Code_dec_31_2021.RED), pos, *groups)
+        self.image = pygame.Surface((35, 32))
+        self.image = Settings_Code_dec_31_2021.platform_b_img
+        self.image.set_colorkey(Settings_Code_dec_31_2021.BLACK)
         self.rect = self.image.get_rect(topleft=pos)
         
 class Lever(Player_block):
-    def __init__(self, pos, *groups):
-        super().__init__((BLUE), pos, *groups)
+    def __init__(self, *groups):
+        super().__init__((Settings_Code_dec_31_2021.BLUE), *groups)
         self.image = pygame.Surface((35, 32))
-        print(Levers_color)
-        self.image.fill(BLUE)
+        self.image.fill(Settings_Code_dec_31_2021.BLUE)
         #self.Levers = Levers
-        self.rect = self.image.get_rect(topleft=pos)
+        self.rect = self.image.get_rect()
+        self.rect.x = 896
+        self.rect.y = 288
 
 class Lever_2(Player_block):
     def __init__(self, pos, *groups):
-        super().__init__((GREEN), pos, *groups)
+        super().__init__((Settings_Code_dec_31_2021.GREEN), pos, *groups)
         self.image = pygame.Surface((35, 32))
-        print(Levers_color)
-        self.image.fill(GREEN)
+        self.image.fill(Settings_Code_dec_31_2021.GREEN)
         #self.Levers = Levers
-        self.rect = self.image.get_rect(topleft=pos)
+        self.rect = self.image.get_rect()
+        self.rect.x = 256
+        self.rect.y = 384
         
 class Wall(Player_block):
     def __init__(self, pos, *groups):
@@ -293,13 +288,21 @@ class ExitBlock(Player_block):
 running = True
 game_over = True
 # while running:
-clock.tick(FPS)
+Settings_Code_dec_31_2021.clock.tick(Settings_Code_dec_31_2021.FPS)
 #     for event in pygame.event.get():
 #         if event.type == pygame.QUIT:
 #             pygame.quit()
 #         else:
-main(Levers_color, bg, time, r, g, b)
-pygame.quit()
-#So far by this first update I have made the movement work the way I want to so far by making it able to move side to side with
-#acceleration and deacceleration. it also has a jump feature like a parabola
-#that goes up and down at varying speeds. next I have to work on making it work on platforms other than the ground, like a cliff.
+#new_file = 'Game_save' + '.txt'
+try:
+    reading = open('Game_save.txt', 'r')
+    working = reading.readlines()
+    if "3" in working:
+        Settings_Code_dec_31_2021.Level.append(3)
+    if "2" in working:
+        Settings_Code_dec_31_2021.Level.append(2)
+    main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)
+except:
+    main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)#, r, g, b,)
+    pygame.quit()
+print("doe")
