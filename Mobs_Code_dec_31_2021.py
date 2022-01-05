@@ -19,11 +19,11 @@ Mob_4_x = {'mob_speedx' : -2}
 class Mobs(pygame.sprite.Sprite):
     def __init__(self, platforms, *groups):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((16, 35))
+        self.image = pygame.Surface((25, 30))
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
-        self.rect.x = 800
-        self.rect.y = 285
+        self.rect.x = 805
+        self.rect.y = 290
         self.on_ground = False
         self.vel = pygame.Vector2((0, 0))
         self.platforms = platforms
@@ -44,11 +44,11 @@ class Mobs(pygame.sprite.Sprite):
 class Mobs_2(pygame.sprite.Sprite):
     def __init__(self, platforms, *groups):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((16, 35))
+        self.image = pygame.Surface((25, 30))
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = 225
-        self.rect.y = 157
+        self.rect.y = 162
         self.on_ground = False
         self.vel = pygame.Vector2((0, 0))
         self.platforms = platforms
@@ -70,11 +70,11 @@ class Mobs_2(pygame.sprite.Sprite):
 class Mobs_3(pygame.sprite.Sprite):
     def __init__(self, platforms, *groups):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((16, 35))
+        self.image = pygame.Surface((25, 30))
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = 228
-        self.rect.y = 381
+        self.rect.y = 386
         self.on_ground = False
         self.vel = pygame.Vector2((0, 0))
         self.platforms = platforms
@@ -96,11 +96,11 @@ class Mobs_3(pygame.sprite.Sprite):
 class Mobs_4(pygame.sprite.Sprite):
     def __init__(self, platforms, *groups):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((16, 35))
+        self.image = pygame.Surface((25, 30))
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = 280
-        self.rect.y = 637
+        self.rect.y = 642
         self.on_ground = False
         self.vel = pygame.Vector2((0, 0))
         self.platforms = platforms
