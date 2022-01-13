@@ -47,7 +47,7 @@ def draw_text(surf, text, size, x, y):
 #             if event.type == pygame.KEYUP:
 #                 waiting = False
     
-def End_screen():
+def end_screen():
 #     Settings_Code_dec_31_2021.screen.blit(Settings_Code_dec_31_2021.background, Settings_Code_dec_31_2021.background_rect)
     reading = open('Game_save.txt', 'r')
     working = reading.readlines()
@@ -225,7 +225,7 @@ def main(Levers_color, bg, time):# r, g, b):
         writing.write('4')
         writing.close()
         print("working")
-        End_screen()
+        end_screen()
     if 3 in Settings_Code_dec_31_2021.Level:
         level = Levels_code_jan_1_2022.level_3
         writing = open(new_file, 'w')
@@ -272,7 +272,7 @@ def main(Levers_color, bg, time):# r, g, b):
         y += Settings_Code_dec_31_2021.TILE_SIZE
         x = 0
     if sum(Settings_Code_dec_31_2021.player_lives_number) <= 0:                                                                                                                            
-            End_screen()
+            end_screen()
             Settings_Code_dec_31_2021.Main_run.remove('run')
         
     while 'run' in Settings_Code_dec_31_2021.Main_run:
@@ -335,7 +335,7 @@ def main(Levers_color, bg, time):# r, g, b):
         pygame.display.update()
         timer.tick(60)
         if sum(Settings_Code_dec_31_2021.player_lives_number) <= 0:                                                                                                                            
-            End_screen()
+            end_screen()
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 pygame.quit()
@@ -422,13 +422,13 @@ if "2" in working:
     Settings_Code_dec_31_2021.Level.append(2)
 main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)
 #     if Settings_Code_dec_31_2021.player_lives <= 0:
-#         End_screen()
+#         end_screen()
 # except:
 #     main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)#, r, g, b,)
 #     pygame.quit()
 # draw_lives(Settings_Code_dec_31_2021.screen, Settings_Code_dec_31_2021.WIDTH - 100, 5, player.lives, Settings_Code_dec_31_2021.platform_img)
 # if player.lives <= 0:
-#     End_screen()
+#     end_screen()
 print("doe")
 for e in pygame.event.get():
     if e.type == pygame.QUIT:
