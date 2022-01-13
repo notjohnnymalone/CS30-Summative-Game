@@ -10,7 +10,7 @@ import random
 from os import path
 from CompSci_30_Final_Modules import Mobs_Code_dec_31_2021
 from CompSci_30_Final_Modules import Levels_code_jan_1_2022
-import Settings_Code_dec_31_2021
+from CompSci_30_Final_Modules import Settings_Code_dec_31_2021
     
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
@@ -282,6 +282,7 @@ class Wall(Player_block):
 class ExitBlock(Player_block):
     def __init__(self, pos, *groups):
         super().__init__(Color("#0033FF"), pos, *groups)
+
 
 # player =  Player(sprites, (TILE_SIZE, TILE_SIZE))
 #all_sprites.add(player)
