@@ -413,14 +413,17 @@ class ExitBlock(Player_block):
 running = True
 game_over = True
 Settings_Code_dec_31_2021.clock.tick(Settings_Code_dec_31_2021.FPS)
-reading = open('Game_save.txt', 'r')
-working = reading.readlines()
+try:
+    reading = open('Game_save.txt', 'r')
+    working = reading.readlines()
 
-if "3" in working:
-    Settings_Code_dec_31_2021.Level.append(3)
-if "2" in working:
-    Settings_Code_dec_31_2021.Level.append(2)
-main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)
+    if "3" in working:
+        Settings_Code_dec_31_2021.Level.append(3)
+    if "2" in working:
+        Settings_Code_dec_31_2021.Level.append(2)
+    main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)
+except:
+    main(Settings_Code_dec_31_2021.Levers_color, Settings_Code_dec_31_2021.bg, Settings_Code_dec_31_2021.time)
 #     if Settings_Code_dec_31_2021.player_lives <= 0:
 #         end_screen()
 # except:
