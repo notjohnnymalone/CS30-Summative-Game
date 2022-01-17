@@ -11,7 +11,7 @@ from os import path
 
 #Load image/sound files up
 img_dir = path.join(path.dirname(__file__), 'Final_img')
-snd_dir = path.join(path.dirname(__file__), 'Final_img')
+snd_dir = path.join(path.dirname(__file__), 'Final_snd')
 
 #Set Screen info
 TILE_SIZE = 32
