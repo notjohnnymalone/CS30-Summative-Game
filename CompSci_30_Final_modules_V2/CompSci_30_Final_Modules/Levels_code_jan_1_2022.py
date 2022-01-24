@@ -6,7 +6,7 @@
 ##########
 
 level = [
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         "W                         WWW  W",
         "W                         W  P W",
         "W                         W P  W",
@@ -30,7 +30,7 @@ level = [
         "WWWWWPPPPPPPPPPPPPPPPPPPPPPWWWWW",]
 
 level_2 = [
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         "W      WW                      W",
         "W      WW                      W",
         "WPP  PPWWPP  PPPPPPPPPPPP   PPPW",
@@ -54,10 +54,10 @@ level_2 = [
         "WWWWWPPPPPPPPWWWWWWWWWWWWWWWWWWW",]
 
 level_3 = [
-        "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-        "W           WWWWWWWWWWWWWWWWWWWW",
-        "W           WWWWWWWWWWWWWWWWWWWW",
-        "WPPPPP PPP  WWWWWWWWWWWWWWWWWWWW",
+        "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+        "W         WWWWWWWWWWWWWWWWWWWWWW",
+        "W         WWWWWWWWWWWWWWWWWWWWWW",
+        "WPPPPP PPPWWWWWWWWWWWWWWWWWWWWWW",
         "WWWWWW WW                      W",
         "WWWW    W                      W",
         "WWWWWP PW      PPPPPPPPPPP PPPPW",
@@ -71,7 +71,7 @@ level_3 = [
         "WWWWWWW PPPPP PWWWWWWWWWWW WWWWW",
         "WWWWWWW        WWWWWWWWWWW WWWWW",
         "WWWWWWW        WWWWWWWWWWW WWWWW",
-        "WWWWWWWPPPPPP PWWWWWWWWWWW WWWWW",
+        "WWWWWWWPPPPPPPPWWWWWWWWWWW WWWWW",
         "W             WWWWWWWWWWWW WWWWW",
         "W                          WWWWW",
         "W                          WWWWW",

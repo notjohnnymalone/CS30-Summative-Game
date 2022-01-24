@@ -69,7 +69,6 @@ R = [175]
 #print(R)
 G = [225]
 B = [195]
-background_color = (R[0], G[0], B[0])
 Main_run = ['run']
 
 #Sprite Groups and Clock
