@@ -31,8 +31,7 @@ def draw_text(surf, text, size, x, y):#draws our text to the screen
     surf.blit(text_surface, text_rect)#adds it to the screen
 
 def show_go_screen():#our starting screen
-    background_color = (sum(Settings_Code_dec_31_2021.R), sum(Settings_Code_dec_31_2021.G), sum(Settings_Code_dec_31_2021.B))
-    Settings_Code_dec_31_2021.screen.fill(background_color)#I added this to make the start and end screen match the background color
+    Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)#I added this to make the start and end screen match the background color
     draw_text(Settings_Code_dec_31_2021.screen, "Regular Computer Classmates 2: Return Of Browser", 40,#changes the name.
               Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 3)
     draw_text(Settings_Code_dec_31_2021.screen, "Use The Arrow Keys To Play", 18,
@@ -52,12 +51,11 @@ def show_go_screen():#our starting screen
                 waiting = False#checks for anything to get pressed and closes out of the loop
     
 def end_screen():#this is the big ending screen
-    background_color = (sum(Settings_Code_dec_31_2021.R), sum(Settings_Code_dec_31_2021.G), sum(Settings_Code_dec_31_2021.B))
-    Settings_Code_dec_31_2021.screen.fill(background_color)
+    Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)
     reading = open('Game_save.txt', 'r')
     working = reading.readlines()#opens the file to a list
     if "4" in working:
-        Settings_Code_dec_31_2021.screen.fill(background_color)
+        Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)
         draw_text(Settings_Code_dec_31_2021.screen, "You Win!", 64, Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 4)
         draw_text(Settings_Code_dec_31_2021.screen, f"Thanks for playing", 35,#calls the draw text function
               Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 2)
@@ -78,18 +76,17 @@ def end_screen():#this is the big ending screen
     writing.close()
     pygame.display.flip()
     Settings_Code_dec_31_2021.Main_run.clear()
-    run = True
-    while run:  
-        for e in pygame.event.get():#chacks for the player leaving the game
-            if e.type == pygame.QUIT:
-                run = False
-                pygame.quit()
+    time.sleep(10)#closes the program after ten seconds
+    pygame.quit()
                 
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
         super().__init__(*groups)
-        self.image = pygame.Surface((16, 35))
-        self.image.fill(Settings_Code_dec_31_2021.YELLOW)#makes the player yellow
+        self.images = Settings_Code_dec_31_2021.player_sprite
+        self.index = 0
+        self.image = self.images[self.index]
+#        self.image = pygame.Surface((16, 35))
+#        self.image.fill(Settings_Code_dec_31_2021.YELLOW)#makes the player yellow
         self.rect = self.image.get_rect()
         self.rect.x = 45
         self.rect.y = 50#sets the coordinates for the sprite to be at.
@@ -107,6 +104,7 @@ class Player(Player_block):
         self.speed = 8
         self.jump_strength = 8
         self.lives = 3
+        self.index = 0
         #time update
         self.last_update = pygame.time.get_ticks()
         
@@ -125,8 +123,10 @@ class Player(Player_block):
                 Settings_Code_dec_31_2021.jump_sound.play()
         if left:#checks for the left arrow
             self.vel.x = -self.speed
+            self.index = 5
         if right:#checks for the right arrow
             self.vel.x = self.speed
+            self.index = 3
         if running:
             self.vel.x *= 1.5
         if not self.on_ground:
@@ -136,6 +136,8 @@ class Player(Player_block):
             if self.vel.y > 100: self.vel.y = 100
         if not(left or right):
             self.vel.x = 0
+            self.index = 0
+        self.image = self.images[self.index]
         # increment in x direction
         self.rect.left += self.vel.x
 #         print(self.rect.x)
@@ -307,8 +309,6 @@ def main(Levers_color, bg, time):# r, g, b): #This is the main code for all of t
             if b <= 0:
                 b = 0
                 
-            if r == 0 and g == 0 and b == 0:
-                Settings_Code_dec_31_2021.player_lives_number.append(-5)
             bg = r,g,b#changes what BG is 
             Settings_Code_dec_31_2021.clock.tick(Settings_Code_dec_31_2021.FPS)
         entities.add(mob, mob_2, mob_3, mob_4)#add all the mobs to the entities to the sprite group
@@ -331,7 +331,8 @@ def main(Levers_color, bg, time):# r, g, b): #This is the main code for all of t
         #below it checks for any clicks to exit the program
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
-                Settings_Code_dec_31_2021.Main_run.remove('run')
+                pygame.quit()
+                return
             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                 return
         
@@ -422,4 +423,3 @@ if __name__ == "__main__":#checks to make sure you are using this file and not j
     for e in pygame.event.get():#chacks for the player leaving the game
         if e.type == pygame.QUIT:
             pygame.quit()
-    pygame.quit()
