@@ -3,7 +3,6 @@
 #Graden_Rusk_and_Reid_Martin
 #Dec_3_2021-Jan_2022
 ##########
-
 #Import the needed features
 import time
 import pygame
@@ -12,9 +11,7 @@ from os import path
 from CompSci_30_Final_Modules import Mobs_Code_dec_31_2021
 from CompSci_30_Final_Modules import Levels_code_jan_1_2022
 from CompSci_30_Final_Modules import Settings_Code_dec_31_2021
-
 #tells what format to print in
-
 def draw_lives(surf, x, y, img):# draws the five lives in the top right.
     lives = sum(Settings_Code_dec_31_2021.player_lives_number)
     for i in range(lives):# prints out number of lives total
@@ -33,6 +30,7 @@ def draw_text(surf, text, size, x, y):#draws our text to the screen
 def show_go_screen():#our starting screen
     background_color = (sum(Settings_Code_dec_31_2021.R), sum(Settings_Code_dec_31_2021.G), sum(Settings_Code_dec_31_2021.B))
     Settings_Code_dec_31_2021.screen.fill(background_color)#I added this to make the start and end screen match the background color
+#     Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)#I added this to make the start and end screen match the background color
     draw_text(Settings_Code_dec_31_2021.screen, "Regular Computer Classmates 2: Return Of Browser", 40,#changes the name.
               Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 3)
     draw_text(Settings_Code_dec_31_2021.screen, "Use The Arrow Keys To Play", 18,
@@ -50,14 +48,16 @@ def show_go_screen():#our starting screen
                 pygame.quit()
             if event.type == pygame.KEYUP:
                 waiting = False#checks for anything to get pressed and closes out of the loop
-    
+
 def end_screen():#this is the big ending screen
     background_color = (sum(Settings_Code_dec_31_2021.R), sum(Settings_Code_dec_31_2021.G), sum(Settings_Code_dec_31_2021.B))
     Settings_Code_dec_31_2021.screen.fill(background_color)
+#    Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)
     reading = open('Game_save.txt', 'r')
     working = reading.readlines()#opens the file to a list
     if "4" in working:
         Settings_Code_dec_31_2021.screen.fill(background_color)
+#        Settings_Code_dec_31_2021.screen.fill(Settings_Code_dec_31_2021.background_color)
         draw_text(Settings_Code_dec_31_2021.screen, "You Win!", 64, Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 4)
         draw_text(Settings_Code_dec_31_2021.screen, f"Thanks for playing", 35,#calls the draw text function
               Settings_Code_dec_31_2021.WIDTH / 2, Settings_Code_dec_31_2021.HEIGHT / 2)
@@ -84,16 +84,22 @@ def end_screen():#this is the big ending screen
             if e.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-                
+#     time.sleep(10)#closes the program after ten seconds
+#     pygame.quit()
+
 class Player_block(pygame.sprite.Sprite):
     def __init__(self, color, pos, *groups):
         super().__init__(*groups)
-        self.image = pygame.Surface((16, 35))
-        self.image.fill(Settings_Code_dec_31_2021.YELLOW)#makes the player yellow
+#         self.image = pygame.Surface((16, 35))
+#         self.image.fill(Settings_Code_dec_31_2021.YELLOW)#makes the player yellow
+        self.images = Settings_Code_dec_31_2021.player_sprite
+        self.index = 0
+        self.image = self.images[self.index]
+#        self.image = pygame.Surface((16, 35))
+#        self.image.fill(Settings_Code_dec_31_2021.YELLOW)#makes the player yellow
         self.rect = self.image.get_rect()
         self.rect.x = 45
         self.rect.y = 50#sets the coordinates for the sprite to be at.
-
 class Player(Player_block):
     def __init__(self, platforms, mobs, pos, *groups):
         super().__init__(Settings_Code_dec_31_2021.WHITE, pos)#calls the player_block class
@@ -107,9 +113,10 @@ class Player(Player_block):
         self.speed = 8
         self.jump_strength = 8
         self.lives = 3
+        self.index = 0
         #time update
         self.last_update = pygame.time.get_ticks()
-        
+
     def update(self, levers_color, yvel, platforms, mobs):
         #sets attributes to make this easier
         pressed = pygame.key.get_pressed()
@@ -125,8 +132,10 @@ class Player(Player_block):
                 Settings_Code_dec_31_2021.jump_sound.play()
         if left:#checks for the left arrow
             self.vel.x = -self.speed
+            self.index = 5
         if right:#checks for the right arrow
             self.vel.x = self.speed
+            self.index = 3
         if running:
             self.vel.x *= 1.5
         if not self.on_ground:
@@ -136,6 +145,8 @@ class Player(Player_block):
             if self.vel.y > 100: self.vel.y = 100
         if not(left or right):
             self.vel.x = 0
+            self.index = 0
+        self.image = self.images[self.index]
         # increment in x direction
         self.rect.left += self.vel.x
 #         print(self.rect.x)
@@ -148,7 +159,6 @@ class Player(Player_block):
         self.on_ground = False
         # do y-axis collisions
         self.collide(0, self.vel.y, self.platforms, self.levers, self.levers_2, mobs)
-
     def collide(self, xvel, yvel, platforms, levers, levers_2, mobs):#our collisions fu
         for p in platforms:#it checks for collisions on any platform
             if pygame.sprite.collide_rect(self, p):
@@ -293,7 +303,6 @@ def main(Levers_color, bg, time):# r, g, b): #This is the main code for all of t
             time = pygame.time.get_ticks()
             r = sum(Settings_Code_dec_31_2021.R)
             Settings_Code_dec_31_2021.R.append(-3)#adds -3 to the R list to change color
-
             Settings_Code_dec_31_2021.G.append(-2)#adds -2 to the G list to change the color
             g = sum(Settings_Code_dec_31_2021.G)
             
@@ -306,7 +315,7 @@ def main(Levers_color, bg, time):# r, g, b): #This is the main code for all of t
                 g = 0
             if b <= 0:
                 b = 0
-                
+
             if r == 0 and g == 0 and b == 0:
                 Settings_Code_dec_31_2021.player_lives_number.append(-5)
             bg = r,g,b#changes what BG is 
@@ -332,9 +341,11 @@ def main(Levers_color, bg, time):# r, g, b): #This is the main code for all of t
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 Settings_Code_dec_31_2021.Main_run.remove('run')
+#                pygame.quit()
+#                 return
             if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                 return
-        
+
 class Platform(Player_block):#this is the player code that can be reused
     def __init__(self, pos, *groups):
         super().__init__((Settings_Code_dec_31_2021.RED), pos, *groups)
@@ -370,7 +381,6 @@ class Lever(Player_block):#the lever function
             self.image.set_colorkey(Settings_Code_dec_31_2021.BLACK)
             self.rect.x = Settings_Code_dec_31_2021.Lever_1_xy[0]
             self.rect.y = Settings_Code_dec_31_2021.Lever_1_xy[1]
-
 class Lever_2(Player_block):#for information on this code please refer to the code above it
     def __init__(self, pos, *groups):
         super().__init__((Settings_Code_dec_31_2021.GREEN), pos, *groups)
@@ -397,11 +407,9 @@ class Lever_2(Player_block):#for information on this code please refer to the co
 #         self.image = pygame.Surface((35, 32))# size of the wall
 #         #self.image.fill(GREEN)#color of the wall
 #         self.rect = self.image.get_rect(topleft=pos)
-
 class ExitBlock(Player_block):
     def __init__(self, pos, *groups):#this is the exit block
         super().__init__(Color("#0033FF"), pos, *groups)
-
 if __name__ == "__main__":#checks to make sure you are using this file and not just calling it
     running = True
     game_over = True
