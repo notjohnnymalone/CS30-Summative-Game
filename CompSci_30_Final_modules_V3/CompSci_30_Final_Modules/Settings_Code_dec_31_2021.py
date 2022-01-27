@@ -81,19 +81,18 @@ clock = pygame.time.Clock()
 Levers = pygame.sprite.Group()
 Levers_2 = pygame.sprite.Group()
 
-#Mobs = pygame.sprite.Group()
+#grouping
 platform_sprites = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 
-#Art and sound
+#Art and sound - importing and setting scale and colorkey
 platform_img = pygame.image.load(path.join(img_dir, "grass_green.png")).convert()
 platform_img = pygame.transform.scale(platform_img, (35, 33))
 platform_b_img = pygame.image.load(path.join(img_dir, "grass_brown.png")).convert()
 platform_b_img = pygame.transform.scale(platform_b_img, (35, 33))
 player_lives = pygame.image.load(path.join(img_dir, "graden_sr.png")).convert()
-#player_lives = pygame.transform.scale(player_lives, (35, 45))
 player_lives.set_colorkey(BLACK)
 player_lives_rect = player_lives.get_rect()
 lever_green = pygame.image.load(path.join(img_dir, "lever_green.png")).convert()
@@ -103,8 +102,6 @@ lever_red = pygame.transform.scale(lever_red, (35, 33))
 lever_red_rotate = pygame.transform.rotate(lever_red, 567)
 font_name = pygame.font.match_font('Bauhaus 93')
 
-# player_stand = pygame.image.load(path.join(img_dir, "graden_front.png")).convert()
-# player_stand.set_colorkey(BLACK)
 
 player_sprite = []
 player_list = ["graden_front.png", "graden_jump.png", 'graden_sr.png', 'graden_wr.png', 'graden_sl.png', 'graden_wl.png']
@@ -115,18 +112,13 @@ player_list = ["graden_front.png", "graden_jump.png", 'graden_sr.png', 'graden_w
 # stand left = 4
 # walk left = 5
 
-# player_sprite.append(pygame.image.load(path.join(img_dir, "graden_front.png")).convert()) #index = 0
-# player_sprite.append(pygame.image.load(path.join(img_dir, "graden_jump.png")).convert()) #index = 1
-# player_sprite.extend(repeat(pygame.image.load(path.join(img_dir,'graden_sr.png')).convert(), 2)) #index = 2-3
-# player_sprite.extend(repeat(pygame.image.load(path.join(img_dir,'graden_wr.png')).convert(), 2)) #index = 4-5
-# player_sprite.extend(repeat(pygame.image.load(path.join(img_dir,'graden_sl.png')).convert(), 2)) #index = 6-7
-# player_sprite.extend(repeat(pygame.image.load(path.join(img_dir,'graden_wl.png')).convert(), 2)) #index = 8-9
+#adds player_list to the sprite list
 for img in player_list:
     player_sprite.append(pygame.image.load(path.join(img_dir, img)).convert())
 for img in player_sprite:
     img.set_colorkey(BLACK)
     
-#Sound
+#Sound - importing and setting volume
 jump_sound = pygame.mixer.Sound(path.join(snd_dir, 'SFX_Jump_10.wav'))
 jump_sound.set_volume(0.085)
 death_sound = pygame.mixer.Sound(path.join(snd_dir, 'SFX_Jump_20.wav'))
@@ -135,10 +127,6 @@ pygame.mixer.music.load(path.join(snd_dir, 'jump and run - tropics.ogg'))
 pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play(loops=-1)
 
-#Backgounds
-# background = pygame.image.load(path.join(img_dir, "fancy-court.png")).convert()#what the background will look like.
-# background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-# background_rect = background.get_rect()
-
 if __name__ == "__main__":
     print("Wrong file.")
+
