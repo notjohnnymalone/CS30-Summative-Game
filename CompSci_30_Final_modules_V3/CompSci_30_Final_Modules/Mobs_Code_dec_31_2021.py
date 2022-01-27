@@ -29,8 +29,8 @@ class Mobs(pygame.sprite.Sprite):#the mobs function
         self.images.extend(repeat(pygame.image.load(path.join(img_dir,'goomboo_2.png')).convert(), 40))
         for frame in self.images:#makes the code ignore the balck on the sprite photos for everything in the list
             frame.set_colorkey(Settings_Code_dec_31_2021.BLACK)#ignores all black colors
-        self.index = 0
-        self.image = self.images[self.index]#idk
+        self.index = 0 #sets image to first image
+        self.image = self.images[self.index]# allows the self.image to correspond to what in in that index in the list
         self.rect = self.image.get_rect()
         self.rect.x = 805#stes the x and y values here and below
         self.rect.y = 290
@@ -55,6 +55,7 @@ class Mobs(pygame.sprite.Sprite):#the mobs function
                     Settings_Code_dec_31_2021.Mob_x['mob_speedx'] = (2)
         new_Mob_speedx = Settings_Code_dec_31_2021.Mob_x.get('mob_speedx')#appends the code to the mob to make it actually move
         self.rect.x = self.rect.x + new_Mob_speedx#makes the mob actually move
+        
 #for any information on the below code please refer to the code above, it is the same all through all of this.    
 class Mobs_2(pygame.sprite.Sprite):
     def __init__(self, platforms, *groups):
